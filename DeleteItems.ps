@@ -1,0 +1,19 @@
+Add-PSSnapin Microsoft.SharePoint.Powershell -ea SilentlyContinue
+$Site = get-spweb "Site URL"
+$list = $Site.lists["List Name"]
+$Cquery = New-Object Microsoft.SharePoint.SPQuery
+$Cquery.ViewAttributes = "Scope='Recursive'"
+$Cquery.RowLimit = 2000
+$Cquery.ViewFields = "<FieldRef Name='ID'/>"
+$Cquery.ViewFieldsOnly = $true
+do
+{
+   $Items = $list.GetItems($Cquery)
+   $Cquery.ListItemCollectionPosition = $Items.ListItemCollectionPosition
+   foreach($item in $Items)
+   {
+     Write-Host " $($item.Id) Deleted item  "
+     $list.GetItemById($item.Id).delete()
+   }
+}
+while ($Cquery.ListItemCollectionPosition -ne $null) 
